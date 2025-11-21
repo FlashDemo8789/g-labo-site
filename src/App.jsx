@@ -1,26 +1,29 @@
-import { useState, useEffect, useRef, useContext, createContext } from 'react';
-import { ShoppingBag, Menu, X, ArrowRight, Plus, Minus, Droplet, Shield, Clock, Mail, MapPin, Phone, Check } from 'lucide-react';
+import React, { useState, useEffect, useRef, useContext, createContext } from 'react';
+import { ShoppingBag, Menu, X, ArrowRight, Star, Plus, Minus, Droplet, Shield, Clock, ChevronRight, Mail, MapPin, Phone, Check, Image as ImageIcon } from 'lucide-react';
 import './index.css';
 
 /**
- * 10 MIN LABO - FINAL MASTERPIECE (VERIFIED)
- * - Corrected Product Lineup (150g / 5g / Sub)
- * - Updated Contact Info to Speciality Salon K@O (Tokyo)
- * - Face & Body Positioning
+ * 10 MIN LABO - FINAL STABLE EDITION (v9)
+ * - Hero Section Update: Removed Brand Text (Logo is in Nav)
+ * - Hero Button: Moved to bottom center to avoid overlapping the video subject
  */
 
 // --- ASSET LIBRARY ---
 const ASSETS = {
-  heroVideo: "/hero.mp4",
+  // Placeholder for your local video.
+  heroVideo: "/10min-labo-hero-video.mp4",
+  
+  // High-stability fallback image
   heroBg: "https://images.unsplash.com/photo-1634449571010-02389ed0f9d0?q=80&w=2670&auto=format&fit=crop",
+  
   productMain: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1887&auto=format&fit=crop", 
-  // Using texture image for the 5g trial size representation
   productTrial: "https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?q=80&w=2574&auto=format&fit=crop",
   productSub: "https://images.unsplash.com/photo-1608248597279-f99d160bfbc8?q=80&w=2670&auto=format&fit=crop", 
   
   textureGold: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
   textureCream: "https://images.unsplash.com/photo-1506617420156-8e4536971650?q=80&w=2670&auto=format&fit=crop",
-  lifestyle: "https://images.unsplash.com/photo-1515377905703-c4788e51af93?q=80&w=2670&auto=format&fit=crop",
+  lifestyle: "https://images.unsplash.com/photo-1602928321679-560bb453f190?q=80&w=2670&auto=format&fit=crop",
+  founder: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=2561&auto=format&fit=crop",
   lab: "https://images.unsplash.com/photo-1579165466741-7f35a4755657?q=80&w=2578&auto=format&fit=crop",
 };
 
@@ -36,7 +39,8 @@ const CONTENT = {
       journal: "Journal",
       contact: "Contact"
     },
-    hero: { subtitle: "REVERSE AGING TECHNOLOGY", title: "TIMELESS\nREVERIE", cta: "DISCOVER" },
+    // UPDATED HERO: Empty title since we removed the text
+    hero: { subtitle: "", title: "", cta: "DISCOVER" },
     marquee: " • 10 MINUTE REVERSE AGING RITUAL • INNOVATIVE 3D NANOTECHNOLOGY",
     intro: { label: "THE MASTERPIECE", title: "Face & Body", sub: "Cream", desc: "A single masterpiece for total regeneration. Penetrates deep into the dermis in just ten minutes. Safe enough for a newborn, powerful enough to reverse time.", cta: "ACQUIRE" },
     philosophy: {
@@ -46,7 +50,11 @@ const CONTENT = {
       p1: "10 min labo was born from a contradiction: we live in an age of acceleration, yet our skin demands patience.",
       p2: "Our founder sought to reconcile these opposing forces. By harnessing Innovative 3D Nanotechnology, we compressed the efficacy of a professional hour-long treatment into a ten-minute daily ritual for both face and body.",
       quote: "\"Safety is the ultimate luxury.\"",
-      quoteDesc: "We believe that true power need not be harsh. Our formulas are crafted to be safe enough for a newborn's delicate skin, yet potent enough to reverse the visible signs of aging. This is the paradox we have mastered."
+      quoteDesc: "We believe that true power need not be harsh. Our formulas are crafted to be safe enough for a newborn's delicate skin, yet potent enough to reverse the visible signs of aging.",
+      founderTitle: "Purposeful Beauty",
+      founderName: "Kaori Kimura (K@O)",
+      founderMsg: "At Speciality Salon K@O, we pursue beauty with purpose. We believe true radiance comes from the balance of four pillars: Mental, Inner, Outer, and Nutritional Beauty. 10 min labo is the physical manifestation of this philosophy—bringing the professional salon experience into your daily sanctuary.",
+      pillars: ["Mental Beauty", "Inner Beauty", "Outer Beauty", "Nutritional Beauty"]
     },
     collection: {
       title: "Collection",
@@ -85,7 +93,7 @@ const CONTENT = {
       email: "CONTACT@NATURANUDY.COM",
       form: { name: "Name", email: "Email", message: "Message", submit: "SEND REQUEST", sending: "SENDING...", successTitle: "Request Received", successDesc: "WE WILL RESPOND SHORTLY" }
     },
-    cart: { title: "YOUR SELECTION", empty: "YOUR CART IS EMPTY", subtotal: "SUBTOTAL", checkout: "PROCEED TO CHECKOUT", shipping: "Complimentary shipping within Japan." },
+    cart: { title: "YOUR SELECTION", empty: "YOUR CART IS EMPTY", subtotal: "SUBTOTAL", checkout: "PROCEED TO CHECKOUT", shipping: "Complimentary shipping via Osaka Bay Logistics." },
     footer: { explore: "EXPLORE", contact: "CONTACT" }
   },
   jp: {
@@ -98,7 +106,7 @@ const CONTENT = {
       journal: "ジャーナル",
       contact: "コンシェルジュ"
     },
-    hero: { subtitle: "リバースエイジング・テクノロジー", title: "時を超えた\n幻想", cta: "発見する" },
+    hero: { subtitle: "", title: "", cta: "発見する" },
     marquee: " • 10分間のリバースエイジング習慣 • 革新的な3Dナノテクノロジー",
     intro: { label: "最高傑作", title: "フェイス＆ボディ", sub: "クリーム", desc: "わずか10分で真皮層深くまで浸透。新生児にも使えるほどの安全性、時を戻すほどのパワー。全身にお使いいただけます。", cta: "手に入れる" },
     philosophy: {
@@ -108,7 +116,11 @@ const CONTENT = {
       p1: "10 min laboは矛盾から生まれました。加速する時代の中で、肌は忍耐を求めているのです。",
       p2: "創設者はこの相反する力を調和させようとしました。革新的な3Dナノテクノロジーを駆使することで、プロフェッショナルな1時間のトリートメント効果を、10分間の日々の儀式へと凝縮したのです。",
       quote: "「安全性こそ、究極の贅沢」",
-      quoteDesc: "真の力は、必ずしも刺激的である必要はありません。私たちの処方は、新生児の繊細な肌にも使えるほど安全でありながら、成熟した肌のエイジングサインを逆転させるほど強力です。これこそが、私たちが極めたパラドックスです。"
+      quoteDesc: "真の力は、必ずしも刺激的である必要はありません。私たちの処方は、新生児の繊細な肌にも使えるほど安全でありながら、成熟した肌のエイジングサインを逆転させるほど強力です。これこそが、私たちが極めたパラドックスです。",
+      founderTitle: "目的のある美の追求",
+      founderName: "木村 香織 (K@O)",
+      founderMsg: "Speciality Salon K@Oでは、「精神美・内面美・外面美・栄養美」の4面美を柱に、お客様の輝く人生美に貢献することを目的に運営しております。10 min laboは、サロンで提供するスモールラグジュアリーな体験をご自宅でも体感していただくために生まれました。",
+      pillars: ["精神美", "内面美", "外面美", "栄養美"]
     },
     collection: {
       title: "コレクション",
@@ -147,7 +159,7 @@ const CONTENT = {
       email: "CONTACT@NATURANUDY.COM",
       form: { name: "お名前", email: "メールアドレス", message: "メッセージ", submit: "リクエスト送信", sending: "送信中...", successTitle: "リクエストを受付", successDesc: "担当者より間もなくご連絡いたします" }
     },
-    cart: { title: "ショッピングカート", empty: "カートは空です", subtotal: "小計", checkout: "購入手続きへ", shipping: "送料無料でお届けします。" },
+    cart: { title: "ショッピングカート", empty: "カートは空です", subtotal: "小計", checkout: "購入手続きへ", shipping: "大阪ベイロジスティクスより送料無料でお届けします。" },
     footer: { explore: "探索", contact: "お問い合わせ" }
   }
 };
@@ -189,6 +201,12 @@ const styles = `
   .lang-jp .font-body { font-family: 'Shippori Mincho', serif; }
   
   .font-ui { font-family: 'Manrope', sans-serif; }
+
+  /* Custom Cursor (keeps native cursor visible) */
+  .cursor-dot { position: fixed; top: 0; left: 0; width: 6px; height: 6px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%, -50%); mix-blend-mode: difference; }
+  .cursor-outline { position: fixed; top: 0; left: 0; width: 40px; height: 40px; border: 1px solid var(--gold); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%, -50%); transition: all 0.15s ease-out; mix-blend-mode: difference; }
+  body:hover .cursor-outline { opacity: 1; }
+  .hover-target:hover ~ .cursor-outline { transform: translate(-50%, -50%) scale(1.8); background: rgba(212, 175, 55, 0.1); }
 
   /* Animations */
   .page-enter { animation: pageEnter 1.2s var(--ease-out-expo) forwards; }
@@ -239,16 +257,53 @@ const useInView = (options = { threshold: 0.1 }) => {
 
 // --- SHARED COMPONENTS ---
 
+// New SafeImage Component for robust error handling
+const SafeImage = ({ src, alt, className }) => {
+  const [error, setError] = useState(false);
+  
+  if (error) {
+    return (
+      <div className={`flex flex-col items-center justify-center bg-[#E5E5E5] text-gray-400 ${className}`}>
+        <ImageIcon size={24} className="mb-2 opacity-50" />
+        <span className="font-ui text-[10px] tracking-widest uppercase">Image Unavailable</span>
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className} 
+      onError={() => setError(true)} 
+    />
+  );
+};
+
+const CustomCursor = () => {
+  const dotRef = useRef(null);
+  const outlineRef = useRef(null);
+  useEffect(() => {
+    const moveCursor = (e) => {
+      if(dotRef.current) { dotRef.current.style.left = `${e.clientX}px`; dotRef.current.style.top = `${e.clientY}px`; }
+      if(outlineRef.current) { outlineRef.current.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" }); }
+    };
+    window.addEventListener('mousemove', moveCursor);
+    return () => window.removeEventListener('mousemove', moveCursor);
+  }, []);
+  return ( <> <div ref={dotRef} className="cursor-dot hidden md:block"></div> <div ref={outlineRef} className="cursor-outline hidden md:block"></div> </> );
+};
+
 const Preloader = () => {
   const [active, setActive] = useState(true);
-  useEffect(() => { setTimeout(() => setActive(false), 2800); }, []);
+  useEffect(() => { setTimeout(() => setActive(false), 2000); }, []);
   if (!active) return null;
   return (
-    <div className="fixed inset-0 z-[100] bg-[#0a0a0a] flex items-center justify-center animate-[slideOut_1s_ease-in-out_2.5s_forwards]">
+    <div className="fixed inset-0 z-[100] bg-[#0a0a0a] flex items-center justify-center animate-[slideOut_1s_ease-in-out_1.5s_forwards]">
       <div className="text-center text-[#f4f4f4]">
         <h1 className="font-display text-5xl md:text-7xl tracking-widest animate-[pulse_2s_ease-in-out]">10 MIN</h1>
-        <div className="w-full h-[1px] bg-[#d4af37] mt-4 transform scale-x-0 animate-[expandLine_1.5s_ease-out_0.5s_forwards]"></div>
-        <p className="font-ui text-xs tracking-[0.5em] mt-4 opacity-0 animate-[fadeIn_1s_ease-out_1s_forwards]">OSAKA BAY LABO</p>
+        <div className="w-full h-[1px] bg-[#d4af37] mt-4 transform scale-x-0 animate-[expandLine_1s_ease-out_0.2s_forwards]"></div>
+        <p className="font-ui text-xs tracking-[0.5em] mt-4 opacity-0 animate-[fadeIn_1s_ease-out_0.5s_forwards]">OSAKA BAY LABO</p>
       </div>
       <style>{`@keyframes slideOut { to { transform: translateY(-100%); } } @keyframes expandLine { to { transform: scaleX(1); } } @keyframes fadeIn { to { opacity: 1; } }`}</style>
     </div>
@@ -264,7 +319,7 @@ const Navigation = ({ activePage, onNavigate, onMenuClick, onCartClick, cartCoun
   return (
     <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isScrolled ? 'py-4 bg-[#f4f4f4]/95 backdrop-blur-md text-[#0a0a0a] border-b border-[#0a0a0a]/10' : `py-8 ${isDark ? 'text-[#f4f4f4]' : 'text-[#0a0a0a]'}`}`}>
       <div className="max-w-[1800px] mx-auto px-6 flex justify-between items-center">
-        <button onClick={onMenuClick} className="hover-target group flex items-center gap-3">
+        <button onClick={onMenuClick} className="group flex items-center gap-3">
           <Menu size={24} strokeWidth={1} />
           <span className="hidden md:block font-ui text-[10px] tracking-[0.25em] opacity-0 group-hover:opacity-100 transition-opacity duration-300 -translate-x-2 group-hover:translate-x-0">{t.nav.menu}</span>
         </button>
@@ -274,8 +329,8 @@ const Navigation = ({ activePage, onNavigate, onMenuClick, onCartClick, cartCoun
         </button>
 
         <div className="flex items-center gap-6">
-          <button onClick={toggleLang} className="hover-target font-ui text-[10px] tracking-[0.25em] hover:text-[#d4af37] transition-colors">{t.nav.lang}</button>
-          <button onClick={onCartClick} className="hover-target relative group">
+          <button onClick={toggleLang} className="font-ui text-[10px] tracking-[0.25em] hover:text-[#d4af37] transition-colors">{t.nav.lang}</button>
+          <button onClick={onCartClick} className="relative group">
             <ShoppingBag size={20} strokeWidth={1} className="group-hover:text-[#d4af37] transition-colors" />
             {cartCount > 0 && (
                 <span className="absolute -top-2 -right-2 w-4 h-4 bg-[#d4af37] text-[#0a0a0a] text-[8px] font-bold flex items-center justify-center rounded-full">
@@ -331,39 +386,54 @@ const Home = ({ onNavigate, addToCart }) => {
   const scrollY = useScroll();
   const [ref, inView] = useInView({ threshold: 0.2 });
   const videoRef = useRef(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.play().catch(error => console.log("Video autoplay blocked:", error));
+      videoRef.current.play()
+        .then(() => setVideoLoaded(true))
+        .catch(error => {
+          console.log("Video autoplay blocked/failed:", error);
+          setVideoLoaded(false); 
+        });
     }
   }, []);
 
   return (
     <div className="page-enter">
-      {/* Hero with Video */}
+      {/* Hero with Fallback Architecture */}
       <section className="relative h-screen w-full overflow-hidden bg-[#0a0a0a] text-[#f4f4f4]">
-        <div className="absolute inset-0 opacity-60 pointer-events-none">
+        
+        {/* 1. Base Layer: High-Res Poster Image (Always Visible initially) */}
+        <div className="absolute inset-0 w-full h-full">
+            <SafeImage 
+                src={ASSETS.heroBg} 
+                className="w-full h-full object-cover" 
+                alt="Hero Background" 
+            />
+        </div>
+
+        {/* 2. Video Layer: Only visible if loaded and playing */}
+        <div className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <video 
             ref={videoRef}
             autoPlay loop muted playsInline 
-            poster={ASSETS.heroBg}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-75 ease-linear"
-            style={{ transform: `scale(${1 + scrollY * 0.0005}) translateY(${scrollY * 0.2}px)` }}
+            className="absolute inset-0 w-full h-full object-cover"
+            onLoadedData={() => setVideoLoaded(true)}
           >
             <source src={ASSETS.heroVideo} type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/80"></div>
         </div>
+
+        {/* 3. Overlay Layer: Ensures text contrast */}
+        <div className="absolute inset-0 bg-black/40 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none"></div>
         
-        <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-4">
-          <p className="font-ui text-xs md:text-sm tracking-[0.4em] text-[#d4af37] mb-8 fade-in-up" style={{animationDelay: '0.5s'}}>{t.hero.subtitle}</p>
-          <h1 className="font-display text-6xl md:text-9xl tracking-tight leading-none mix-blend-overlay fade-in-up whitespace-pre-wrap" style={{animationDelay: '0.7s'}}>{t.hero.title}</h1>
-          <div className="mt-12 fade-in-up" style={{animationDelay: '0.9s'}}>
-            <button onClick={() => onNavigate('collection')} className="hover-target group border border-white/20 px-10 py-4 flex items-center gap-4 hover:bg-white hover:text-black transition-all duration-500">
-              <span className="font-ui text-xs tracking-[0.2em]">{t.hero.cta}</span>
-              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+        {/* 4. Content Layer - Updated to remove text and position button at bottom */}
+        <div className="relative z-10 h-full flex flex-col justify-end items-center pb-24 px-4">
+          <button onClick={() => onNavigate('collection')} className="group border border-white/20 px-10 py-4 flex items-center gap-4 hover:bg-white hover:text-black transition-all duration-500 backdrop-blur-sm bg-black/20">
+            <span className="font-ui text-xs tracking-[0.2em]">{t.hero.cta}</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </section>
 
@@ -388,7 +458,7 @@ const Home = ({ onNavigate, addToCart }) => {
               <span className="font-display text-2xl">¥19,800</span>
               <button 
                 onClick={() => addToCart({ id: 1, name: "Reverse Aging Cream", price: 19800, image: ASSETS.productMain, desc: "150g Jar" })}
-                className="hover-target px-8 py-4 bg-[#0a0a0a] text-white font-ui text-xs tracking-[0.2em] hover:bg-[#d4af37] transition-colors duration-500"
+                className="px-8 py-4 bg-[#0a0a0a] text-white font-ui text-xs tracking-[0.2em] hover:bg-[#d4af37] transition-colors duration-500"
               >
                 {t.intro.cta}
               </button>
@@ -397,7 +467,7 @@ const Home = ({ onNavigate, addToCart }) => {
           <div className="lg:col-span-7 order-1 lg:order-2 relative group">
             <div className={`relative aspect-[4/5] overflow-hidden bg-[#EAE8E3] ${inView ? 'is-visible' : ''}`}>
                <div className="reveal-layer"></div>
-               <img src={ASSETS.productMain} alt="Cream" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s] ease-out" />
+               <SafeImage src={ASSETS.productMain} alt="Cream" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[2s] ease-out" />
             </div>
           </div>
         </div>
@@ -411,15 +481,25 @@ const Philosophy = () => {
   return (
     <div className="page-enter pt-32 pb-20 bg-[#f4f4f4]">
       <div className="max-w-5xl mx-auto px-6">
+        {/* Origin Section */}
         <div className="text-center mb-24">
           <span className="font-ui text-xs tracking-[0.4em] text-[#d4af37]">{t.philosophy.label}</span>
           <h1 className="font-display text-6xl mt-6 mb-12">{t.philosophy.title}</h1>
-          <div className="w-[1px] h-24 bg-[#0a0a0a] mx-auto"></div>
+          {/* IMPROVED DIVIDER: Jewel Style */}
+          <div className="flex flex-col items-center gap-2">
+             <div className="w-[1px] h-12 bg-[#d4af37]/40"></div>
+             <div className="w-2 h-2 border border-[#d4af37] rotate-45"></div>
+             <div className="w-[1px] h-12 bg-[#d4af37]/40"></div>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-2 gap-16 items-center mb-32">
-          <div className="relative aspect-[3/4] overflow-hidden">
-            <img src={ASSETS.lifestyle} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" alt="Zen Garden" />
+          <div className="relative aspect-[3/4] overflow-hidden bg-gray-200">
+            <SafeImage 
+              src={ASSETS.lifestyle} 
+              className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
+              alt="Zen Garden"
+            />
           </div>
           <div>
             <h3 className="font-display text-3xl mb-6">{t.philosophy.subTitle}</h3>
@@ -431,7 +511,33 @@ const Philosophy = () => {
             </p>
           </div>
         </div>
+
+        {/* Founder Section */}
+        <div className="grid md:grid-cols-2 gap-20 items-center mb-32">
+             <div className="order-2 md:order-1">
+                 <span className="font-ui text-xs tracking-[0.4em] text-[#d4af37] block mb-4">{t.philosophy.founderTitle}</span>
+                 <h3 className="font-display text-4xl mb-6">{t.philosophy.founderName}</h3>
+                 <p className="font-body text-lg text-gray-600 leading-loose mb-8">
+                     {t.philosophy.founderMsg}
+                 </p>
+                 <div className="grid grid-cols-2 gap-4">
+                     {t.philosophy.pillars.map((pillar, i) => (
+                         <div key={i} className="border border-gray-300 p-4 text-center font-ui text-xs tracking-widest text-gray-500 uppercase">
+                             {pillar}
+                         </div>
+                     ))}
+                 </div>
+             </div>
+             <div className="order-1 md:order-2 relative aspect-square bg-gray-200">
+                 <SafeImage 
+                    src={ASSETS.founder} 
+                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000" 
+                    alt="Founder" 
+                 />
+             </div>
+        </div>
         
+        {/* Quote Section */}
         <div className="bg-[#0a0a0a] text-[#f4f4f4] p-12 md:p-24 text-center relative overflow-hidden">
            <div className="relative z-10">
              <h3 className="font-display text-4xl mb-8">{t.philosophy.quote}</h3>
@@ -467,7 +573,7 @@ const Collection = ({ addToCart }) => {
           {products.map((p) => (
             <div key={p.id} className="group bg-[#f4f4f4] p-8 md:p-12 border-r border-b border-gray-200 hover:bg-white transition-all duration-500 relative overflow-hidden">
               <div className="aspect-[3/4] mb-8 overflow-hidden relative bg-[#f9f9f9]">
-                 <img src={p.image} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000" alt={p.name} />
+                 <SafeImage src={p.image} className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000" alt={p.name} />
                  <button 
                     onClick={() => addToCart(p)}
                     className="absolute bottom-4 right-4 w-10 h-10 bg-[#0a0a0a] text-white flex items-center justify-center rounded-full translate-y-20 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 hover:bg-[#d4af37]"
@@ -518,7 +624,7 @@ const Science = () => {
                         <p className="font-body text-lg text-gray-400 leading-loose border-l border-[#d4af37] pl-6">{item.desc}</p>
                      </div>
                      <div className="flex-1 aspect-video overflow-hidden">
-                        <img src={images[i]} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt={item.title} />
+                        <SafeImage src={images[i]} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-700" alt={item.title} />
                      </div>
                   </div>
                 )
@@ -658,7 +764,7 @@ const CartDrawer = ({ isOpen, onClose, cartItems, updateQuantity }) => {
                 <div className="flex-1 overflow-y-auto space-y-8 scrollbar-hide">
                     {cartItems.map((item) => (
                         <div key={item.id} className="flex gap-6">
-                            <img src={item.image} className="w-20 h-24 object-cover bg-gray-200" alt={item.name} />
+                            <SafeImage src={item.image} className="w-20 h-24 object-cover bg-gray-200" alt={item.name} />
                             <div className="flex-1 flex flex-col justify-between">
                                 <div>
                                     <h4 className="font-display text-base mb-1">{item.name}</h4>
@@ -787,6 +893,7 @@ const App = () => {
     <div className={`relative min-h-screen selection:bg-[#d4af37] selection:text-white lang-${lang}`}>
       <style>{styles}</style>
       <div className="noise"></div>
+      <CustomCursor />
       <Preloader />
       
       <Navigation 
