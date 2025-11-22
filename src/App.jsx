@@ -391,16 +391,38 @@ const Home = ({ onNavigate, addToCart }) => {
   const [ref, inView] = useInView({ threshold: 0.2 });
   const videoRef = useRef(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.play()
+    const attemptPlay = () => {
+      if (!videoRef.current) return;
+      const vid = videoRef.current;
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.autoplay = true;
+      vid
+        .play()
         .then(() => setVideoLoaded(true))
         .catch(error => {
           console.log("Video autoplay blocked/failed:", error);
           setVideoLoaded(false);
         });
-    }
+    };
+
+    attemptPlay();
+
+    const handleTouchStart = () => attemptPlay();
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') attemptPlay();
+    };
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   return (
@@ -429,11 +451,20 @@ const Home = ({ onNavigate, addToCart }) => {
             poster={ASSETS.heroBg}
             className="absolute inset-0 w-full h-full object-cover"
             onLoadedData={() => setVideoLoaded(true)}
+            onCanPlay={() => setVideoLoaded(true)}
+            onError={() => { setVideoError(true); setVideoLoaded(false); }}
           >
             <source src={ASSETS.heroVideoMp4} type="video/mp4" />
             <source src={ASSETS.heroVideoAv1} type='video/mp4; codecs="av01.0.04M.08"' />
           </video>
         </div>
+
+        {/* Video fallback notice (only shown if playback fails) */}
+        {videoError && (
+          <div className="absolute top-4 right-4 z-20 bg-black/60 text-white text-xs px-3 py-2 font-ui rounded">
+            Video fallback active
+          </div>
+        )}
 
         {/* 3. Overlay Layer: Ensures text contrast */}
         <div className="absolute inset-0 bg-black/40 bg-gradient-to-b from-black/30 via-transparent to-black/80 pointer-events-none"></div>
