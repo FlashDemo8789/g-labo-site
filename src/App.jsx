@@ -10,9 +10,11 @@ import './index.css';
 
 // --- ASSET LIBRARY ---
 const ASSETS = {
-  // Hero video sources (H.264 first for Safari/iOS, AV1 for modern browsers)
-  heroVideoMp4: "/10min-labo-hero-video-h264.mp4",
-  heroVideoAv1: "/10min-labo-hero-video.mp4",
+  // Hero video sources (ordered by widest device support)
+  heroVideoHevc: "/10min-labo-hero-video-hevc.mp4",      // HEVC for modern iOS Safari
+  heroVideoMp4: "/10min-labo-hero-video-h264.mp4",        // H.264 1080p fallback
+  heroVideoMp4Mobile: "/10min-labo-hero-video-720.mp4",   // H.264 720p lightweight
+  heroVideoAv1: "/10min-labo-hero-video.mp4",             // Original AV1 master
 
   // High-stability fallback image
   heroBg: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
@@ -454,7 +456,9 @@ const Home = ({ onNavigate, addToCart }) => {
             onCanPlay={() => setVideoLoaded(true)}
             onError={() => { setVideoError(true); setVideoLoaded(false); }}
           >
+            <source src={ASSETS.heroVideoHevc} type='video/mp4; codecs="hvc1"' />
             <source src={ASSETS.heroVideoMp4} type="video/mp4" />
+            <source src={ASSETS.heroVideoMp4Mobile} type="video/mp4" media="(max-width: 767px)" />
             <source src={ASSETS.heroVideoAv1} type='video/mp4; codecs="av01.0.04M.08"' />
           </video>
         </div>
