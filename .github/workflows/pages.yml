@@ -10,7 +10,9 @@ permissions:
   pages: write
   id-token: write
 
-concurrency: pages
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -27,12 +29,6 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: vite
-          build_dir: dist
-          cname: labo.flash.onl
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -41,10 +37,13 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to Pages
-        id: deploy
+        id: deployment
         uses: actions/deploy-pages@v4
