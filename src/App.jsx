@@ -10,10 +10,10 @@ import './index.css';
 
 // --- ASSET LIBRARY ---
 const ASSETS = {
-  // Hero video sources (ordered by widest device support)
-  heroVideoHevc: "/10min-labo-hero-video-hevc.mp4",      // HEVC for modern iOS Safari
-  heroVideoMp4: "/10min-labo-hero-video-h264.mp4",        // H.264 1080p fallback
+  // Hero video sources (H.264 first for max compatibility)
+  heroVideoMp4: "/10min-labo-hero-video-h264.mp4",        // H.264 1080p
   heroVideoMp4Mobile: "/10min-labo-hero-video-720.mp4",   // H.264 720p lightweight
+  heroVideoHevc: "/10min-labo-hero-video-hevc.mp4",       // HEVC for modern iOS Safari
   heroVideoAv1: "/10min-labo-hero-video.mp4",             // Original AV1 master
 
   // High-stability fallback image
@@ -393,7 +393,6 @@ const Home = ({ onNavigate, addToCart }) => {
   const [ref, inView] = useInView({ threshold: 0.2 });
   const videoRef = useRef(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoError, setVideoError] = useState(false);
   const [showPlayPrompt, setShowPlayPrompt] = useState(false);
 
   useEffect(() => {
@@ -462,24 +461,19 @@ const Home = ({ onNavigate, addToCart }) => {
             className="absolute inset-0 w-full h-full object-cover"
             onLoadedData={() => setVideoLoaded(true)}
             onCanPlay={() => setVideoLoaded(true)}
-            onError={() => { setVideoError(true); setVideoLoaded(false); }}
           >
-            <source src={ASSETS.heroVideoHevc} type='video/mp4; codecs="hvc1"' />
+            {/* H.264 first for widest support */}
             <source src={ASSETS.heroVideoMp4} type="video/mp4" />
             <source src={ASSETS.heroVideoMp4Mobile} type="video/mp4" media="(max-width: 767px)" />
+            {/* HEVC for iOS Safari */}
+            <source src={ASSETS.heroVideoHevc} type='video/mp4; codecs="hvc1"' />
+            {/* AV1 last */}
             <source src={ASSETS.heroVideoAv1} type='video/mp4; codecs="av01.0.04M.08"' />
           </video>
         </div>
 
-        {/* Video fallback notice (only shown if playback fails) */}
-        {videoError && (
-          <div className="absolute top-4 right-4 z-20 bg-black/60 text-white text-xs px-3 py-2 font-ui rounded">
-            Video fallback active
-          </div>
-        )}
-
         {/* Tap-to-play prompt for strict mobile autoplay environments */}
-        {showPlayPrompt && !videoLoaded && !videoError && (
+        {showPlayPrompt && !videoLoaded && (
           <div className="absolute inset-0 z-20 flex items-center justify-center">
             <button
               onClick={() => {
