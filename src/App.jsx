@@ -394,6 +394,7 @@ const Home = ({ onNavigate, addToCart }) => {
   const videoRef = useRef(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const [showPlayPrompt, setShowPlayPrompt] = useState(false);
 
   useEffect(() => {
     const attemptPlay = () => {
@@ -413,6 +414,10 @@ const Home = ({ onNavigate, addToCart }) => {
 
     attemptPlay();
 
+    const promptTimeout = setTimeout(() => {
+      if (!videoLoaded) setShowPlayPrompt(true);
+    }, 1500);
+
     const handleTouchStart = () => attemptPlay();
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') attemptPlay();
@@ -422,10 +427,11 @@ const Home = ({ onNavigate, addToCart }) => {
     document.addEventListener('visibilitychange', handleVisibility);
 
     return () => {
+      clearTimeout(promptTimeout);
       window.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('visibilitychange', handleVisibility);
     };
-  }, []);
+  }, [videoLoaded]);
 
   return (
     <div className="page-enter">
@@ -449,6 +455,8 @@ const Home = ({ onNavigate, addToCart }) => {
             loop
             muted
             playsInline
+            disablePictureInPicture
+            controls={false}
             preload="auto"
             poster={ASSETS.heroBg}
             className="absolute inset-0 w-full h-full object-cover"
@@ -467,6 +475,21 @@ const Home = ({ onNavigate, addToCart }) => {
         {videoError && (
           <div className="absolute top-4 right-4 z-20 bg-black/60 text-white text-xs px-3 py-2 font-ui rounded">
             Video fallback active
+          </div>
+        )}
+
+        {/* Tap-to-play prompt for strict mobile autoplay environments */}
+        {showPlayPrompt && !videoLoaded && !videoError && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center">
+            <button
+              onClick={() => {
+                setShowPlayPrompt(false);
+                videoRef.current?.play();
+              }}
+              className="px-6 py-3 bg-black/70 text-white font-ui text-xs tracking-[0.2em] border border-white/20 rounded-full"
+            >
+              TAP TO PLAY
+            </button>
           </div>
         )}
 
