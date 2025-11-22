@@ -594,7 +594,8 @@ const Collection = ({ addToCart }) => {
 
 const Science = () => {
   const { t } = useLanguage();
-  const images = [ASSETS.textureCream, ASSETS.textureGold, ASSETS.productTrial];
+  // Use highly reliable assets to avoid broken thumbnails
+  const images = [ASSETS.lab, ASSETS.textureGold, ASSETS.productTrial];
   const icons = [Shield, Droplet, Clock];
 
   return (
