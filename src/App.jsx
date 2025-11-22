@@ -10,8 +10,9 @@ import './index.css';
 
 // --- ASSET LIBRARY ---
 const ASSETS = {
-  // Placeholder for your local video.
-  heroVideo: "/10min-labo-hero-video.mp4",
+  // Hero video sources (H.264 first for Safari/iOS, AV1 for modern browsers)
+  heroVideoMp4: "/10min-labo-hero-video-h264.mp4",
+  heroVideoAv1: "/10min-labo-hero-video.mp4",
 
   // High-stability fallback image
   heroBg: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop",
@@ -420,11 +421,17 @@ const Home = ({ onNavigate, addToCart }) => {
         <div className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <video
             ref={videoRef}
-            autoPlay loop muted playsInline
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            poster={ASSETS.heroBg}
             className="absolute inset-0 w-full h-full object-cover"
             onLoadedData={() => setVideoLoaded(true)}
           >
-            <source src={ASSETS.heroVideo} type="video/mp4" />
+            <source src={ASSETS.heroVideoMp4} type="video/mp4" />
+            <source src={ASSETS.heroVideoAv1} type='video/mp4; codecs="av01.0.04M.08"' />
           </video>
         </div>
 
